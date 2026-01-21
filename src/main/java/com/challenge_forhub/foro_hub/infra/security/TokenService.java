@@ -2,6 +2,7 @@ package com.challenge_forhub.foro_hub.infra.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.challenge_forhub.foro_hub.domain.usuario.Usuario;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ public class TokenService {
     @Value("${application.security.secret}")
     private String secret;
 
+
     public String generaToken(Usuario usuario){
 
         Algorithm algoritmo = Algorithm.HMAC256(secret);
@@ -27,6 +29,21 @@ public class TokenService {
                 .withClaim("id" , usuario.getId())
                 .withExpiresAt(generaFechaExpiracionToken())
                 .sign(algoritmo);
+
+    }
+
+
+    public String getUser(String tokenJWT){
+        Algorithm algorithm = Algorithm.HMAC256(secret);
+        try {
+            return JWT.require(algorithm)
+                    .withIssuer("foro-hub")
+                    .build()
+                    .verify(tokenJWT)
+                    .getSubject();
+        } catch (JWTVerificationException e) {
+            throw new RuntimeException("Token Ingresado no es valido o expirado");
+        }
 
     }
 

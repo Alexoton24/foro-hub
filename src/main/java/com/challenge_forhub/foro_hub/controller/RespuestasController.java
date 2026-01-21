@@ -31,6 +31,8 @@ public class RespuestasController {
     @PostMapping
     public ResponseEntity<MuestraDetallesRespuesta> respuesta(@RequestBody @Valid RespuestaDTO respuestaDTO, UriComponentsBuilder uriComponentsBuilder){
 
+        usuarioService.verificaIdentidad(respuestaDTO.idUsuario());
+
         Respuesta respuesta = respuestaService.setRespuestaRepository(respuestaDTO);
 
         var uri = uriComponentsBuilder.path("/respuesta/{id}").buildAndExpand(respuesta.getId()).toUri();
@@ -53,7 +55,7 @@ public class RespuestasController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity borraRespuesta(@PathVariable Long id){
-
+        usuarioService.verificaIdentidad(id);
         respuestaService.desactivaRespuesta(id);
 
         return ResponseEntity.noContent().build();
@@ -61,6 +63,8 @@ public class RespuestasController {
 
     @PutMapping("/{id}/activar")
     public ResponseEntity activaRespuesta(@PathVariable Long id){
+
+        usuarioService.verificaIdentidad(id);
         respuestaService.activaRespuesta(id);
 
         return  ResponseEntity.noContent().build();
@@ -69,6 +73,7 @@ public class RespuestasController {
 
     @PutMapping("/{id}")
     public ResponseEntity actualizaRespuesta(@PathVariable Long id ,@Valid@RequestBody ActualizaRespuesta datos) {
+        usuarioService.verificaIdentidad(id);
        Respuesta respuesta = respuestaService.encuentraRespuesta(id);
        if(!respuesta.isActivo()){
            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No puedes editar una respuesta eliminada");

@@ -28,7 +28,7 @@ public class AuthenticationController {
     TokenService tokenService;
 
     @PostMapping
-    public ResponseEntity logeaUsuario(@RequestBody@Valid DatosAutenticacionUsuario datos){
+    public ResponseEntity logueaUsuario(@RequestBody@Valid DatosAutenticacionUsuario datos){
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(datos.email(), datos.contrasena());
 

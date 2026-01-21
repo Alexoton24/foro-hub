@@ -9,6 +9,7 @@ import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,22 +38,21 @@ public class RespuestaService {
     @Transactional
     public Respuesta setRespuestaRepository(RespuestaDTO dto){
 
+        var usuarioAutenticado = SecurityContextHolder.getContext().getAuthentication();
+
+        Usuario usuario = (Usuario) usuarioAutenticado.getPrincipal();
+
         Topico topico =  topicoService.obtenerPorId(dto.idTopico());
 
         topicoService.verificaTopicoNoEstaBorrado(dto.idTopico());
 
-        Usuario usuario = usuarioService.encontrarUsuario(dto.idUsuario());
         Respuesta respuesta = new Respuesta(dto);
 
 
         usuarioService.validarEstadoUsuario(usuario);
 
-
-        topico.setRespuesta(respuesta);
         respuesta.setTopico(topico);
-        usuario.getRespuestas().add(respuesta);
         respuesta.setUsuario(usuario);
-
         respuestaRepository.save(respuesta);
 
         return respuesta;
@@ -89,6 +89,11 @@ public class RespuestaService {
     public void actualizaRespuesta(Long id, ActualizaRespuesta datos){
         Respuesta respuesta = encuentraRespuesta(id);
         respuesta.actualizaRepuesta(datos);
+    }
+
+    @Transactional
+    public void borraRespuestasUsuarioAsociado(Usuario usuario){
+        respuestaRepository.borraRespuestasUsuarioAsociado(usuario);
     }
 
 }
